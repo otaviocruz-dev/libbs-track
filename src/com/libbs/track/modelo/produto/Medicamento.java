@@ -8,6 +8,9 @@ public class Medicamento {
     private String formaFarmaceutica;
     private String numRegistroAnvisa;
 
+    public Medicamento(String nomePrincipio, String nomeComercial, String concentracao, String formaFarmaceutica, String numRegistroAnvisa) {
+    }
+
     public String getNomePrincipio() {
         return nomePrincipio;
     }
