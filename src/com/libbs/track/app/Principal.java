@@ -52,4 +52,44 @@ public class Principal {
         System.out.println("  " + titulo);
         System.out.println("========================================");
     }
+
+    //ModeloIA
+
+    separador("5 - Modelo de IA e Previsao");
+
+    // Criação de um modelo de IA
+    ModeloIA modelo = new ModeloIA(
+            "LSTM-Demanda-v2", //Nome do Modelo
+            "LSTM", // Algoritmo ultilizado
+            LocalDate.of(2024, 10, 10), 0.91, "2.1.0" //data de treinamneto, precisão e versao.
+    );
+
+    System.out.println("Modelo carregado: " + modelo); //Exibe informação do modelo da IA
+
+    // RECALL DO LOTE
+
+    separador("6 - processo de recall");
+
+
+    // Criação do Lote
+    Lote lote = new Lote ("L12345", LocalDate.of(2025,1,10), LocalDate.of(2027, 1,10));
+
+
+    // Criação do lote afetado
+    Recall recall = new Recall(
+            "RC-001",lote,"contaminação microbiologica", LocalDate.now(),"Aberto"
+    );
+
+    // Recall iniciado
+    System.out.println("Recall iniciado: " + recall);
+
+    // Atualização do status
+    recall.setStatusRecall("Em_Andamento");
+    System.out.println("Status atualizado: " + recall.getStatusRecall());
+
+
+    // Finalização do recall
+    recall.setStatusRecall("Concluido");
+    System.out.println("Recall finalizado: " + recall);
+
 }
