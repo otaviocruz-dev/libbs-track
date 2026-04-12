@@ -4,49 +4,21 @@ import java.time.LocalDate;
 
 public class Lote {
 
-    public int codigoLote;
-    public LocalDate dataFabricacao;
-    public LocalDate dataValidade;
-    public int quantidade;
-    public String status;
+    private int codigoLote;
+    private LocalDate dataFabricacao;
+    private LocalDate dataValidade;
+    private int quantidade;
+    private String status;
 
-    public int getCodigoLote() {
-        return codigoLote;
-    }
-
-    public void setCodigoLote(int codigoLote) {
+    public Lote(int codigoLote, LocalDate fabricacao,
+                LocalDate validade, int quantidade) {
         this.codigoLote = codigoLote;
-    }
-
-    public LocalDate getDataFabricacao() {
-        return dataFabricacao;
-    }
-
-    public void setDataFabricacao(LocalDate dataFabricacao) {
-        this.dataFabricacao = dataFabricacao;
-    }
-
-    public LocalDate getDataValidade() {
-        return dataValidade;
-    }
-
-    public void setDataValidade(LocalDate dataValidade) {
-        this.dataValidade = dataValidade;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(int quantidade) {
+        this.dataFabricacao = fabricacao;
+        this.dataValidade = validade;
         this.quantidade = quantidade;
+        this.status = "ATIVO";
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public int getCodigoLote() { return codigoLote; }
+    public LocalDate getDataValidade() { return dataValidade; }
 }

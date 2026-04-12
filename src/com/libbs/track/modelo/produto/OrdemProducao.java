@@ -1,16 +1,20 @@
 package com.libbs.track.modelo.produto;
 
-import com.libbs.track.modelo.produto.Lote;
-
 import java.time.LocalDate;
 
 public class OrdemProducao {
-    private Lote loteMonitorado;
-    private String codigoProduto;
-    private String responsavelProducao;
-    private LocalDate dataFabricacao;
-    private LocalDate dataValidade;
+
+    private Lote lote;
+    private String responsavel;
+    private LocalDate data;
     private int quantidadePlanejada;
     private int quantidadeProduzida;
 
+    public OrdemProducao(Lote lote, String responsavel,
+                         int quantidadePlanejada) {
+        this.lote = lote;
+        this.responsavel = responsavel;
+        this.quantidadePlanejada = quantidadePlanejada;
+        this.data = LocalDate.now();
+    }
 }

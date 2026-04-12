@@ -1,95 +1,160 @@
 package com.libbs.track.app;
 
-import com.libbs.track.modelo.estoque.*;
-import com.libbs.track.modelo.ia.*;
-import com.libbs.track.modelo.logistica.*;
-import com.libbs.track.modelo.pessoa.*;
-import com.libbs.track.modelo.produto.*;
-import com.libbs.track.modelo.regulatorio.*;
+import com.libbs.track.modelo.estoque.Armazem;
+import com.libbs.track.modelo.estoque.Recall;
+import com.libbs.track.modelo.ia.ModeloIA;
+import com.libbs.track.modelo.pessoa.Farmaceutico;
+import com.libbs.track.modelo.pessoa.Funcionario;
+import com.libbs.track.modelo.produto.ItemEstoque; //
+import com.libbs.track.modelo.produto.Lote;
+import com.libbs.track.modelo.produto.Medicamento;
+import com.libbs.track.modelo.regulatorio.InspecaoDeQualidade;
+import com.libbs.track.modelo.regulatorio.RegistroAnvisa;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * VAMOS TENTAR FAZER ISSO AQUI:
- *   1. Cadastro de medicamento e registro Anvisa
- *   2. Produção e criação de lote
- *   3. Inspeção de qualidade por farmacêutico
- *   4. Entrada no armazém como item de estoque
- *   5. Monitoramento de prazo com alerta de IA
- *   6. Previsão de demanda pelo modelo de IA
- *   7. Geração de relatório regulatório
- *   8. Pedido de entrega para distribuidor com rastreabilidade
- *   9. Polimorfismo: Farmaceutico se comporta como Funcionario
+ * Classe Principal do sistema LIBBS TRACK.
+ *
+ * Demonstra conceitos de:
+ * - Orientação a Objetos
+ * - Encapsulamento
+ * - Herança
+ * - Polimorfismo explícito
+ * - Integração entre domínios
  */
-
 public class Principal {
 
     public static void main(String[] args) {
 
         separador("SISTEMA LIBBS TRACK - INICIALIZANDO");
 
-        // 1. MEDICAMENTO + REGISTRO ANVISA
-
+        /*
+         * 1. CADASTRO DE MEDICAMENTO E REGISTRO NA ANVISA
+         */
         separador("1. CADASTRO DE MEDICAMENTO");
 
-        Medicamento glifage = new Medicamento("Metformina", "Glifage XR 500mg", "500mg", "Comprimido de liberação prolongada", "1.0101.0317.001-0");
+        Medicamento glifage = new Medicamento(
+                "Metformina",
+                "Glifage XR 500mg",
+                "500mg",
+                "Comprimido de liberação prolongada",
+                "1.0101.0317.001-0"
+        );
 
-        RegistroAnvisa registroGlifage = new RegistroAnvisa("1.0101.0317.001-0", glifage, LocalDate.of(2020, 3, 15), LocalDate.of(2025, 3, 15), "REFERENCIA");
+        RegistroAnvisa registro = new RegistroAnvisa(
+                "1.0101.0317.001-0",
+                glifage,
+                LocalDate.of(2020, 3, 15),
+                LocalDate.of(2025, 3, 15),
+                "REFERENCIA"
+        );
 
-        System.out.println("Medicamento cadastrado: " + glifage);
-        System.out.println("Registro Anvisa: " + registroGlifage);
-        System.out.println("Registro valido: " + registroGlifage.estaValido(60));
+        System.out.println("Registro válido (60 meses)? "
+                + registro.estaValido(60));
+
+        /*
+         * 2. PRODUÇÃO E CRIAÇÃO DE LOTE
+         */
+        separador("2. PRODUÇÃO E CRIAÇÃO DE LOTE");
+
+        Lote lote = new Lote(
+                12345,
+                LocalDate.of(2025, 1, 10),
+                LocalDate.of(2027, 1, 10),
+                50000
+        );
+
+        System.out.println("Lote criado: " + lote.getCodigoLote());
+
+        /*
+         * 3. INSPEÇÃO DE QUALIDADE (POLIMORFISMO EXPLÍCITO)
+         */
+        separador("3. INSPEÇÃO DE QUALIDADE");
+
+        Funcionario funcionario = new Farmaceutico(
+                "João Silva",
+                123456,
+                "Controle de Qualidade",
+                10,
+                "Fábrica SP",
+                LocalTime.of(8, 0),
+                LocalTime.of(17, 0),
+                "DIURNO"
+        );
+
+        // Polimorfismo: método sobrescrito é resolvido em tempo de execução
+        System.out.println(funcionario.getDescricaoCargo());
+
+        InspecaoDeQualidade inspecao = new InspecaoDeQualidade();
+        inspecao.setLoteInspecionado(lote);
+        inspecao.setFarmaceuticoResponsavel((Farmaceutico) funcionario);
+        inspecao.setDataInspecao(LocalDate.now());
+        inspecao.setResultado("APROVADO");
+
+        System.out.println("Inspeção realizada com sucesso.");
+
+        /*
+         * 4. ENTRADA DO LOTE NO ARMAZÉM
+         */
+        separador("4. ENTRADA NO ARMAZÉM");
+
+        Armazem armazem = new Armazem(
+                "ARM-SP-01",
+                "São Paulo - SP",
+                100000,
+                20.0
+        );
+
+        ItemEstoque itemEstoque = new ItemEstoque(
+                lote,
+                armazem,
+                50000,
+                LocalDate.now()
+        );
+
+        System.out.println("Lote armazenado no armazém.");
+
+        /*
+         * 5. MODELO DE INTELIGÊNCIA ARTIFICIAL
+         */
+        separador("5. MODELO DE IA");
+
+        ModeloIA modeloIA = new ModeloIA(
+                "LSTM-Demanda-v2",
+                "LSTM",
+                LocalDate.of(2024, 10, 10),
+                0.91,
+                "2.1.0"
+        );
+
+        System.out.println("Modelo de IA carregado: " + modeloIA);
+
+        /*
+         * 6. PROCESSO DE RECALL
+         */
+        separador("6. PROCESSO DE RECALL");
+
+        Recall recall = new Recall(
+                "RC-001",
+                lote,
+                "Contaminação microbiológica",
+                LocalDate.now(),
+                "ABERTO"
+        );
+
+        System.out.println("Recall iniciado: " + recall);
+
+        recall.setStatusRecall("CONCLUIDO");
+        System.out.println("Recall finalizado.");
+
+        separador("SISTEMA FINALIZADO COM SUCESSO");
     }
 
-
-    // Separador de texto, igual o que fizemos no Elgin Printer
-    private static void separador ( String titulo) {
+    private static void separador(String titulo) {
         System.out.println("\n========================================");
         System.out.println("  " + titulo);
         System.out.println("========================================");
     }
-
-    //ModeloIA
-
-    separador("5 - Modelo de IA e Previsao");
-
-    // Criação de um modelo de IA
-    ModeloIA modelo = new ModeloIA(
-            "LSTM-Demanda-v2", //Nome do Modelo
-            "LSTM", // Algoritmo ultilizado
-            LocalDate.of(2024, 10, 10), 0.91, "2.1.0" //data de treinamneto, precisão e versao.
-    );
-
-    System.out.println("Modelo carregado: " + modelo); //Exibe informação do modelo da IA
-
-    // RECALL DO LOTE
-
-    separador("6 - processo de recall");
-
-
-    // Criação do Lote
-    Lote lote = new Lote ("L12345", LocalDate.of(2025,1,10), LocalDate.of(2027, 1,10));
-
-
-    // Criação do lote afetado
-    Recall recall = new Recall(
-            "RC-001",lote,"contaminação microbiologica", LocalDate.now(),"Aberto"
-    );
-
-    // Recall iniciado
-    System.out.println("Recall iniciado: " + recall);
-
-    // Atualização do status
-    recall.setStatusRecall("Em_Andamento");
-    System.out.println("Status atualizado: " + recall.getStatusRecall());
-
-
-    // Finalização do recall
-    recall.setStatusRecall("Concluido");
-    System.out.println("Recall finalizado: " + recall);
-
 }
