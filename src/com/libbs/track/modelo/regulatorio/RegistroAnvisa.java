@@ -17,24 +17,14 @@ public class RegistroAnvisa {
     private String categoriaRegistro;
     private LocalDate dataEmissao;
 
-    /**
-     * Construtor completo.
-     * O objeto já nasce em um estado válido.
-     */
-    public RegistroAnvisa(String numeroRegistro,
-                          Medicamento medicamentoRegistrado,
-                          LocalDate dataConcessao,
-                          LocalDate dataVencimentoRegistro,
+    public RegistroAnvisa(String numeroRegistro, Medicamento medicamentoRegistrado,
+                          LocalDate dataConcessao, LocalDate dataVencimentoRegistro,
                           String categoriaRegistro) {
-
-        this.numeroRegistro = numeroRegistro;
-        this.medicamentoRegistrado = medicamentoRegistrado;
-        this.dataConcessao = dataConcessao;
+        this.numeroRegistro         = numeroRegistro;
+        this.medicamentoRegistrado  = medicamentoRegistrado;
+        this.dataConcessao          = dataConcessao;
         this.dataVencimentoRegistro = dataVencimentoRegistro;
-        this.categoriaRegistro = categoriaRegistro;
-
-        // A data de emissão ocorre no momento da concessão
-        this.dataEmissao = dataConcessao;
+        this.categoriaRegistro      = categoriaRegistro;
     }
 
     public String getNumeroRegistro() {
@@ -66,16 +56,16 @@ public class RegistroAnvisa {
      * um período em meses a partir da data de emissão.
      */
     public boolean estaValido(int mesesDeValidade) {
-        LocalDate dataExpiracao = dataEmissao.plusMonths(mesesDeValidade);
-        return LocalDate.now().isBefore(dataExpiracao);
+        if (dataVencimentoRegistro == null) return false;
+        return LocalDate.now().isBefore(dataVencimentoRegistro);
     }
 
     @Override
     public String toString() {
         return "RegistroAnvisa{" +
-                "numeroRegistro='" + numeroRegistro + '\'' +
-                ", dataEmissao=" + dataEmissao +
-                ", categoriaRegistro='" + categoriaRegistro + '\'' +
+                "numero='" + numeroRegistro + '\'' +
+                ", categoria='" + categoriaRegistro + '\'' +
+                ", vencimento=" + dataVencimentoRegistro +
                 '}';
     }
 }
