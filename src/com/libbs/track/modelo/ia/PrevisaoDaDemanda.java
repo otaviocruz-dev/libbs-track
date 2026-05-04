@@ -1,53 +1,49 @@
 package com.libbs.track.modelo.ia;
 
 import com.libbs.track.modelo.produto.Medicamento;
-
 import java.time.LocalDate;
 
+/**
+ * Resultado gerado pelo ModeloIA com a estimativa de demanda
+ * de um medicamento para um período futuro.
+ * Alimenta a OrdemProducao para evitar falta ou excesso de estoque.
+ */
 public class PrevisaoDaDemanda {
-    private Medicamento medicamentoPrevisto;
-    private Integer quantidadePrevista;
-    private String periodoReferencia;
-    private LocalDate dataGeracao;
-    private Double acuraciaModelo;
 
-    public Medicamento getMedicamentoPrevisto() {
-        return medicamentoPrevisto;
-    }
+    private final Medicamento medicamento;
+    private final int         quantidadePrevista;
+    private final String      periodo;      // ex: "2025-06"
+    private final LocalDate   dataGeracao;  // definida automaticamente
+    private final double      acuracia;     // ex: 0.91 = 91%
 
-    public void setMedicamentoPrevisto(Medicamento medicamentoPrevisto) {
-        this.medicamentoPrevisto = medicamentoPrevisto;
-    }
-
-    public Integer getQuantidadePrevista() {
-        return quantidadePrevista;
-    }
-
-    public void setQuantidadePrevista(Integer quantidadePrevista) {
+    public PrevisaoDaDemanda(Medicamento medicamento, int quantidadePrevista,
+                             String periodo, double acuracia) {
+        this.medicamento        = medicamento;
         this.quantidadePrevista = quantidadePrevista;
+        this.periodo            = periodo;
+        this.acuracia           = acuracia;
+        this.dataGeracao        = LocalDate.now();
     }
 
-    public String getPeriodoReferencia() {
-        return periodoReferencia;
+    // Getters — objeto imutável após criação
+    public Medicamento getMedicamento()        { return medicamento; }
+    public int         getQuantidadePrevista() { return quantidadePrevista; }
+    public String      getPeriodo()            { return periodo; }
+    public LocalDate   getDataGeracao()        { return dataGeracao; }
+    public double      getAcuracia()           { return acuracia; }
+
+    /** Retorna a acurácia formatada em percentual para exibição. */
+    public String getAcuraciaFormatada() {
+        return String.format("%.1f%%", acuracia * 100);
     }
 
-    public void setPeriodoReferencia(String periodoReferencia) {
-        this.periodoReferencia = periodoReferencia;
-    }
-
-    public LocalDate getDataGeracao() {
-        return dataGeracao;
-    }
-
-    public void setDataGeracao(LocalDate dataGeracao) {
-        this.dataGeracao = dataGeracao;
-    }
-
-    public Double getAcuraciaModelo() {
-        return acuraciaModelo;
-    }
-
-    public void setAcuraciaModelo(Double acuraciaModelo) {
-        this.acuraciaModelo = acuraciaModelo;
+    @Override
+    public String toString() {
+        return "PrevisaoDaDemanda{" +
+                "medicamento='" + medicamento.getNomeComercial() + '\'' +
+                ", periodo='" + periodo + '\'' +
+                ", quantidade=" + quantidadePrevista +
+                ", acuracia=" + getAcuraciaFormatada() +
+                '}';
     }
 }

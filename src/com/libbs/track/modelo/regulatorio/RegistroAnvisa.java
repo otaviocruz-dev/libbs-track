@@ -12,7 +12,14 @@ public class RegistroAnvisa {
     private String categoriaRegistro;
     private LocalDate dataEmissao;
 
-    public RegistroAnvisa(String numeroRegistro, Medicamento medicamentoRegistrado, LocalDate dataConcessao, LocalDate dataVencimentoRegistro, String categoriaRegistro) {
+    public RegistroAnvisa(String numeroRegistro, Medicamento medicamentoRegistrado,
+                          LocalDate dataConcessao, LocalDate dataVencimentoRegistro,
+                          String categoriaRegistro) {
+        this.numeroRegistro         = numeroRegistro;
+        this.medicamentoRegistrado  = medicamentoRegistrado;
+        this.dataConcessao          = dataConcessao;
+        this.dataVencimentoRegistro = dataVencimentoRegistro;
+        this.categoriaRegistro      = categoriaRegistro;
     }
 
     public String getNumeroRegistro() {
@@ -56,7 +63,16 @@ public class RegistroAnvisa {
     }
 
     public boolean estaValido(int mesesDeValidade) {
-        LocalDate expiracao = dataEmissao.plusMonths(mesesDeValidade);
-        return LocalDate.now().isBefore(expiracao);
+        if (dataVencimentoRegistro == null) return false;
+        return LocalDate.now().isBefore(dataVencimentoRegistro);
+    }
+
+    @Override
+    public String toString() {
+        return "RegistroAnvisa{" +
+                "numero='" + numeroRegistro + '\'' +
+                ", categoria='" + categoriaRegistro + '\'' +
+                ", vencimento=" + dataVencimentoRegistro +
+                '}';
     }
 }
