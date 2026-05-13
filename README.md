@@ -2,7 +2,7 @@
 
 Sistema de gerenciamento e rastreabilidade farmacêutica com prevenção de validade logística por Inteligência Artificial, desenvolvido como projeto acadêmico de Orientação a Objetos, com foco em **mostrar os fundamentos de POO.**
 
-> Empresa parceira: **Libbs Farmacêutica** — segmento farmacêutico, com foco em conformidade Anvisa e inovação em gestão de estoque.
+> Empresa parceira: **Libbs Farmacêutica**, segmento farmacêutico, com foco em conformidade Anvisa e inovação em gestão de estoque.
 
 ---
 
@@ -76,8 +76,6 @@ libbs-track/
 │               ├── InspecaoDeQualidade.java
 │               ├── RegistroAnvisa.java
 │               └── RelatorioRegulatorio.java
-├── frontend/
-│   └── index.html                          # Dashboard simulado
 └── README.md
 ```
 
