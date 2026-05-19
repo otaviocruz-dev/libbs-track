@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LibbsTrack — Gerenciamento Farmacêutico</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFE9;
+    --border: #E2E0D8;
+    --border-strong: #C8C5BA;
+    --text: #1A1917;
+    --text-muted: #6B6860;
+    --text-faint: #A8A59E;
+    --accent: #1B4FD8;
+    --accent-light: #EBF0FF;
+    --accent-dark: #0F3099;
+    --success: #0E7A4E;
+    --success-bg: #E8F7F1;
+    --warning: #92580A;
+    --warning-bg: #FEF4E4;
+    --danger: #B91C1C;
+    --danger-bg: #FEF0F0;
+    --info: #0369A1;
+    --info-bg: #EFF6FF;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Sora', sans-serif;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--text);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text { font-size: 15px; font-weight: 600; color: #fff; }
+  .logo-sub { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: .04em; text-transform: uppercase; }
+
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+
+  .nav-label {
+    font-size: 9px; font-weight: 500; letter-spacing: .1em;
+    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    padding: 0 8px; margin: 16px 0 6px;
+  }
+  .nav-label:first-child { margin-top: 0; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 13px; font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    transition: all .15s; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+  .nav-item.active { background: var(--accent); color: #fff; font-weight: 500; }
+
+  .nav-icon { width: 16px; height: 16px; opacity: .7; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .nav-badge {
+    margin-left: auto; font-size: 10px; font-family: var(--mono);
+    background: var(--danger); color: #fff;
+    border-radius: 10px; padding: 1px 6px; font-weight: 500;
+  }
+
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .user-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+
+  .user-name { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); }
+  .user-role { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    height: 56px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 28px; gap: 16px; flex-shrink: 0;
+  }
+
+  .topbar-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .topbar-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+  .topbar-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-family: var(--mono);
+    background: var(--success-bg); color: var(--success);
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid #A7E8CD;
+  }
+
+  .topbar-pill::before {
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: .3; }
+  }
+
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
+
+  .section { display: none; animation: fadeIn .2s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ── COMPONENTS ── */
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 600; }
+  .page-desc { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+
+  .metric-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+
+  .metric-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .metric-value { font-size: 28px; font-weight: 600; margin: 6px 0 4px; line-height: 1; font-family: var(--mono); }
+  .metric-sub { font-size: 11px; color: var(--text-faint); }
+  .metric-accent { border-top: 3px solid var(--accent); }
+  .metric-danger { border-top: 3px solid var(--danger); }
+  .metric-success { border-top: 3px solid var(--success); }
+  .metric-warning { border-top: 3px solid #D97706; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px;
+  }
+  .card:last-child { margin-bottom: 0; }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .card-title { font-size: 13px; font-weight: 600; }
+  .card-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; font-family: var(--mono);
+    padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .badge-ok { background: var(--success-bg); color: var(--success); }
+  .badge-warn { background: var(--warning-bg); color: var(--warning); }
+  .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+  .badge-neutral { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-faint); padding: 0 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 11px 12px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  .mono { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+
+  /* ── PROGRESS ── */
+  .prog { height: 5px; background: var(--surface-2); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+  .fill-green { background: var(--success); }
+  .fill-amber { background: #D97706; }
+  .fill-red { background: var(--danger); }
+  .fill-blue { background: var(--accent); }
+
+  /* ── ALERT ITEMS ── */
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .alert-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .alert-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+  }
+  .dot-red { background: var(--danger); }
+  .dot-amber { background: #D97706; }
+  .dot-green { background: var(--success); }
+  .alert-title { font-size: 12px; font-weight: 500; }
+  .alert-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.5; }
+  .alert-meta { font-size: 10px; color: var(--text-faint); margin-top: 4px; font-family: var(--mono); }
+
+  /* ── ROW DETAIL ── */
+  .row-detail {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+  .row-detail:last-child { border-bottom: none; }
+  .row-key { color: var(--text-muted); }
+  .row-val { font-weight: 500; text-align: right; }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex; align-items: center; gap: 0; margin: 4px 0;
+  }
+  .flow-step {
+    flex: 1; text-align: center; padding: 10px 6px;
+    font-size: 11px; font-weight: 500;
+    background: var(--surface-2); border: 1px solid var(--border);
+    position: relative;
+  }
+  .flow-step:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .flow-step:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .flow-step.done { background: var(--accent-light); color: var(--accent-dark); border-color: #BFCEF8; }
+  .flow-step.active-step { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .flow-icon { font-size: 14px; display: block; margin-bottom: 2px; }
+
+  /* ── IA GAUGE ── */
+  .gauge-wrap { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+  .gauge-bar { flex: 1; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #1B4FD8, #0EA5E9); }
+  .gauge-label { font-size: 11px; color: var(--text-muted); min-width: 90px; }
+  .gauge-value { font-size: 12px; font-weight: 600; font-family: var(--mono); min-width: 40px; text-align: right; }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block; font-size: 10px; padding: 2px 7px;
+    border-radius: 4px; border: 1px solid var(--border);
+    color: var(--text-muted); margin-right: 4px; margin-top: 4px;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">LT</div>
+      <span class="logo-text">LibbsTrack</span>
+    </div>
+    <div class="logo-sub">v1.0.0 · Sistema Farmacêutico</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
+        <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+      </svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="nav('lotes',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M2 4h12M2 8h12M2 12h12"/>
+      </svg>
+      Lotes
+    </button>
+    <button class="nav-item" onclick="nav('alertas',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2L2 13h12L8 2z"/><path d="M8 7v3M8 11.5v.5"/>
+      </svg>
+      Alertas IA
+      <span class="nav-badge">1</span>
+    </button>
+
+    <div class="nav-label">Operações</div>
+    <button class="nav-item" onclick="nav('estoque',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 5l7-3 7 3v6l-7 3-7-3V5z"/>
+      </svg>
+      Estoque
+    </button>
+    <button class="nav-item" onclick="nav('logistica',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 8h10M8 5l3 3-3 3"/><rect x="11" y="5" width="4" height="6" rx="1"/>
+      </svg>
+      Logística
+    </button>
+
+    <div class="nav-label">Conformidade</div>
+    <button class="nav-item" onclick="nav('regulatorio',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 1h8l3 3v10a1 1 0 01-1 1H2a1 1 0 01-1-1V2a1 1 0 011-1z"/><path d="M4 7h8M4 10h5"/>
+      </svg>
+      Regulatório
+    </button>
+    <button class="nav-item" onclick="nav('ia',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/>
+      </svg>
+      Modelo IA
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">AB</div>
+      <div>
+        <div class="user-name">Dra. Ana Beatriz</div>
+        <div class="user-role">Farmacêutica · CRF 123456</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div style="flex:1">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+    </div>
+    <div class="topbar-pill">Sistema ativo</div>
+    <div style="font-size:11px;color:var(--text-faint);font-family:var(--mono)" id="clock"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="page-header">
+        <div class="page-title">Visão geral</div>
+        <div class="page-desc">LibbsTrack · Rastreabilidade farmacêutica com IA</div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-card metric-accent">
+          <div class="metric-label">Lotes ativos</div>
+          <div class="metric-value">2</div>
+          <div class="metric-sub">+1 este mês</div>
+        </div>
+        <div class="metric-card metric-danger">
+          <div class="metric-label">Alertas críticos</div>
+          <div class="metric-value" style="color:var(--danger)">1</div>
+          <div class="metric-sub">Ação imediata necessária</div>
+        </div>
+        <div class="metric-card metric-success">
+          <div class="metric-label">Ocupação ARM-SP-01</div>
+          <div class="metric-value">50%</div>
+          <div class="metric-sub">50.000 / 100.000 un.</div>
+        </div>
+        <div class="metric-card metric-warning">
+          <div class="metric-label">Acurácia IA</div>
+          <div class="metric-value">91%</div>
+          <div class="metric-sub">LSTM-Demanda-v2</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Status dos lotes</div></div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot dot-green"></div>
+            <div style="flex:1">
+              <div class="alert-title">Lote #12345 — Glifage XR 500mg</div>
+              <div class="alert-desc">50.000 unidades · ARM-SP-01 · Prateleira B2-P3-N4</div>
+              <div class="prog"><div class="prog-fill fill-green" style="width:85%"></div></div>
+              <div class="alert-meta">Validade: 10/01/2027 · 638 dias restantes</div>
+            </div>
+            <span class="badge badge-ok">OK</span>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot dot-red"></div>
+            <div style="flex:1">
+              <div class="alert-title">Lote #99999 — Glifage XR 500mg</div>
+              <div class="alert-desc">3.000 unidades · Em distribuição urgente</div>
+              <div class="prog"><div class="prog-fill fill-red" style="width:10%"></div></div>
+              <div class="alert-meta">Validade: 25 dias restantes · RECALL ativo</div>
+            </div>
+            <span class="badge badge-danger">Crítico</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Alertas recentes</div></div>
+            <span class="badge badge-danger">1 crítico</span>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot dot-red"></div>
+            <div>
+              <div class="alert-title">Validade crítica — Lote #99999</div>
+              <div class="alert-desc">Vence em 25 dias. Acionar distribuição imediatamente.</div>
+              <div class="alert-meta">LSTM-Demanda-v2 · VALIDADE · 04/05/2026 10:02</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot dot-amber"></div>
+            <div>
+              <div class="alert-title">Previsão de demanda gerada</div>
+              <div class="alert-desc">Glifage XR: 120.000 un. previstas para Jun/2025</div>
+              <div class="alert-meta">Acurácia 91,0% · 04/05/2026 10:01</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot dot-green"></div>
+            <div>
+              <div class="alert-title">Recall RC-001 concluído</div>
+              <div class="alert-desc">Contaminação microbiológica — lote recolhido com sucesso</div>
+              <div class="alert-meta">04/05/2026 09:45</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Fluxo operacional — Lote #12345</div></div>
+          <span class="badge badge-ok">Distribuído</span>
+        </div>
+        <div class="flow">
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Ordem produção</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Inspeção</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Armazém</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Controle prazo</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Relatório</div>
+          <div class="flow-step active-step"><span class="flow-icon">⬡</span>Distribuição</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOTES -->
+    <div class="section" id="sec-lotes">
+      <div class="page-header">
+        <div class="page-title">Lotes</div>
+        <div class="page-desc">Rastreabilidade por lote conforme Anvisa</div>
+      </div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th><th>Medicamento</th><th>Princípio ativo</th>
+              <th>Fabricação</th><th>Validade</th><th>Qtd.</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="mono">#12345</span></td>
+              <td><strong style="font-size:12px">Glifage XR 500mg</strong><br><span style="font-size:10px;color:var(--text-faint)">Convencional</span></td>
+              <td>Metformina</td>
+              <td class="mono">10/01/2025</td>
+              <td class="mono">10/01/2027</td>
+              <td>50.000 un.</td>
+              <td><span class="badge badge-ok">Aprovado</span></td>
+            </tr>
+            <tr>
+              <td><span class="mono">#99999</span></td>
+              <td><strong style="font-size:12px">Glifage XR 500mg</strong><br><span style="font-size:10px;color:var(--text-faint)">Convencional</span></td>
+              <td>Metformina</td>
+              <td class="mono">01/06/2023</td>
+              <td class="mono" style="color:var(--danger);font-weight:500">25 dias</td>
+              <td>3.000 un.</td>
+              <td><span class="badge badge-danger">Crítico</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Biotecnologia — Altekin 40mg</div><span class="badge badge-info">Biológico</span></div>
+          <div class="row-detail"><span class="row-key">Princípio ativo</span><span class="row-val">Adalimumabe</span></div>
+          <div class="row-detail"><span class="row-key">Concentração</span><span class="row-val">40mg / 0,8mL</span></div>
+          <div class="row-detail"><span class="row-key">Forma</span><span class="row-val">Solução injetável</span></div>
+          <div class="row-detail"><span class="row-key">Área</span><span class="row-val">Imunologia</span></div>
+          <div class="row-detail"><span class="row-key">Tecnologia</span><span class="row-val">Anticorpo Monoclonal</span></div>
+          <div class="row-detail"><span class="row-key">Nível</span><span class="row-val"><span class="badge badge-ok">Comercial</span></span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Ordem de produção</div><span class="badge badge-ok">Concluída</span></div>
+          <div class="row-detail"><span class="row-key">Lote</span><span class="row-val mono">#12345</span></div>
+          <div class="row-detail"><span class="row-key">Responsável</span><span class="row-val">Carlos Andrade</span></div>
+          <div class="row-detail"><span class="row-key">Planejado</span><span class="row-val">50.000 un.</span></div>
+          <div class="row-detail"><span class="row-key">Produzido</span><span class="row-val">50.000 un.</span></div>
+          <div class="row-detail"><span class="row-key">Conclusão</span><span class="row-val">100%</span></div>
+          <div class="prog" style="margin-top:12px"><div class="prog-fill fill-green" style="width:100%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS IA -->
+    <div class="section" id="sec-alertas">
+      <div class="page-header">
+        <div class="page-title">Alertas de IA</div>
+        <div class="page-desc">Gerados automaticamente pelo LSTM-Demanda-v2</div>
+      </div>
+
+      <div class="card" style="border-left:3px solid var(--danger)">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Validade crítica — Lote #99999</div>
+            <div class="card-sub">Gerado em 04/05/2026 às 10:02</div>
+          </div>
+          <span class="badge badge-danger">CRÍTICO · VALIDADE</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">
+          Lote #99999 vence em <strong>25 dias</strong>. Estoque de 3.000 unidades em risco de perda logística. Acionar distribuição imediatamente para Drogasil ou centros de distribuição alternativos.
+        </p>
+        <div class="row-detail"><span class="row-key">Tipo</span><span class="row-val">VALIDADE</span></div>
+        <div class="row-detail"><span class="row-key">Nível de risco</span><span class="row-val"><span class="badge badge-danger">CRÍTICO</span></span></div>
+        <div class="row-detail"><span class="row-key">Lote afetado</span><span class="row-val mono">#99999</span></div>
+        <div class="row-detail"><span class="row-key">Modelo</span><span class="row-val mono">LSTM-Demanda-v2 v2.1.0</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Previsão de demanda — Jun/2025</div>
+          <span class="badge badge-info">ALTA CONFIANÇA</span>
+        </div>
+        <div class="row-detail"><span class="row-key">Medicamento</span><span class="row-val">Glifage XR 500mg</span></div>
+        <div class="row-detail"><span class="row-key">Quantidade prevista</span><span class="row-val">120.000 unidades</span></div>
+        <div class="row-detail"><span class="row-key">Período</span><span class="row-val mono">2025-06</span></div>
+        <div class="row-detail"><span class="row-key">Acurácia do modelo</span><span class="row-val">91,0%</span></div>
+        <div class="gauge-wrap" style="margin-top:8px">
+          <span class="gauge-label">Confiança</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:91%"></div></div>
+          <span class="gauge-value">91%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="section" id="sec-estoque">
+      <div class="page-header">
+        <div class="page-title">Estoque</div>
+        <div class="page-desc">Controle de armazém e itens em estoque</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Armazém ARM-SP-01</div>
+            <div class="card-sub">Embu das Artes — SP</div>
+          </div>
+          <span class="badge badge-info">50% ocupado</span>
+        </div>
+        <div class="grid-3" style="margin-bottom:12px">
+          <div>
+            <div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Temperatura</div>
+            <div style="font-size:16px;font-weight:600;font-family:var(--mono)">20,0 °C</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Capacidade</div>
+            <div style="font-size:16px;font-weight:600;font-family:var(--mono)">100.000 un.</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Ocupação atual</div>
+            <div style="font-size:16px;font-weight:600;font-family:var(--mono)">50.000 un.</div>
+          </div>
+        </div>
+        <div class="prog" style="height:8px">
+          <div class="prog-fill fill-blue" style="width:50%"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Itens em estoque</div></div>
+        <table>
+          <thead>
+            <tr><th>Lote</th><th>Medicamento</th><th>Prateleira</th><th>Qtd. disponível</th><th>Entrada</th><th>Validade</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">#12345</td>
+              <td>Glifage XR 500mg</td>
+              <td><span class="mono">B2-P3-N4</span></td>
+              <td>50.000 un.</td>
+              <td class="mono">04/05/2026</td>
+              <td class="mono">10/01/2027</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOGISTICA -->
+    <div class="section" id="sec-logistica">
+      <div class="page-header">
+        <div class="page-title">Logística</div>
+        <div class="page-desc">Distribuição e rastreabilidade de movimentações</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Pedido de entrega</div><span class="badge badge-info">Enviado</span></div>
+          <div class="row-detail"><span class="row-key">Código</span><span class="row-val mono">PED-2025-0198</span></div>
+          <div class="row-detail"><span class="row-key">Lote</span><span class="row-val mono">#12345</span></div>
+          <div class="row-detail"><span class="row-key">Destinatário</span><span class="row-val">Drogasil</span></div>
+          <div class="row-detail"><span class="row-key">Quantidade</span><span class="row-val">10.000 un.</span></div>
+          <div class="row-detail"><span class="row-key">Data de envio</span><span class="row-val mono">04/05/2026</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Distribuidor</div></div>
+          <div class="row-detail"><span class="row-key">Nome</span><span class="row-val">Drogasil</span></div>
+          <div class="row-detail"><span class="row-key">CNPJ</span><span class="row-val mono">61.412.110/0001-03</span></div>
+          <div class="row-detail"><span class="row-key">Segmento</span><span class="row-val">Farmácia</span></div>
+          <div class="row-detail"><span class="row-key">Cidade</span><span class="row-val">São Paulo — SP</span></div>
+          <div class="row-detail"><span class="row-key">Contato</span><span class="row-val mono" style="font-size:10px">logistica@drogasil.com.br</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Rastreabilidade de movimentações</div></div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Lote</th><th>Origem</th><th>Destino</th><th>Quantidade</th><th>Data/hora</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">#1</td>
+              <td class="mono">#12345</td>
+              <td>ARM-SP-01 · Embu das Artes</td>
+              <td>Drogasil · São Paulo</td>
+              <td>10.000 un.</td>
+              <td class="mono">04/05/2026 10:02</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REGULATORIO -->
+    <div class="section" id="sec-regulatorio">
+      <div class="page-header">
+        <div class="page-title">Regulatório</div>
+        <div class="page-desc">Conformidade com a Anvisa — BPF RDC 658/2022</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Registro Anvisa</div><span class="badge badge-neutral">Referência</span></div>
+          <div class="row-detail"><span class="row-key">Número</span><span class="row-val mono">1.0101.0317.001-0</span></div>
+          <div class="row-detail"><span class="row-key">Medicamento</span><span class="row-val">Glifage XR 500mg</span></div>
+          <div class="row-detail"><span class="row-key">Concessão</span><span class="row-val mono">15/03/2020</span></div>
+          <div class="row-detail"><span class="row-key">Vencimento</span><span class="row-val mono" style="color:var(--danger)">15/03/2025</span></div>
+          <div class="row-detail"><span class="row-key">Situação</span><span class="row-val"><span class="badge badge-warn">Renovação pendente</span></span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Inspeção de qualidade</div><span class="badge badge-ok">Aprovado</span></div>
+          <div class="row-detail"><span class="row-key">Lote</span><span class="row-val mono">#12345</span></div>
+          <div class="row-detail"><span class="row-key">Responsável</span><span class="row-val">Dra. Ana Beatriz Costa</span></div>
+          <div class="row-detail"><span class="row-key">CRF</span><span class="row-val mono">123456</span></div>
+          <div class="row-detail"><span class="row-key">Data</span><span class="row-val mono">04/05/2026</span></div>
+          <div class="row-detail"><span class="row-key">Observações</span><span class="row-val" style="font-size:11px;text-align:right">Nenhuma não-conformidade encontrada</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Relatório regulatório</div><div class="card-sub">Assinado digitalmente por Dra. Ana Beatriz Costa · CRF 123456</div></div>
+          <span class="badge badge-ok">Válido · 12 meses</span>
+        </div>
+        <div style="display:flex;gap:24px;margin-bottom:14px">
+          <div><div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Código</div><div class="mono" style="font-size:12px">REL-2025-0042</div></div>
+          <div><div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Tipo</div><div style="font-size:12px;font-weight:500">Inspeção</div></div>
+          <div><div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Emissão</div><div class="mono" style="font-size:12px">04/05/2026</div></div>
+        </div>
+        <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.7;border-left:3px solid var(--accent)">
+          Inspeção do lote 12345 (Glifage XR 500mg) realizada em 04/05/2026. Resultado: <strong>APROVADO</strong>. Nenhuma não-conformidade encontrada. Lote liberado para distribuição conforme BPF Anvisa RDC 658/2022.
+        </div>
+      </div>
+
+      <div class="card" style="border-left:3px solid var(--success)">
+        <div class="card-header">
+          <div><div class="card-title">Recall RC-001</div><div class="card-sub">Lote #99999 · Contaminação microbiológica</div></div>
+          <span class="badge badge-ok">Concluído</span>
+        </div>
+        <div class="row-detail"><span class="row-key">Código</span><span class="row-val mono">RC-001</span></div>
+        <div class="row-detail"><span class="row-key">Lote afetado</span><span class="row-val mono">#99999</span></div>
+        <div class="row-detail"><span class="row-key">Motivo</span><span class="row-val" style="font-size:11px">Contaminação microbiológica detectada pela IA</span></div>
+        <div class="row-detail"><span class="row-key">Início</span><span class="row-val mono">04/05/2026</span></div>
+        <div class="row-detail"><span class="row-key">Status</span><span class="row-val"><span class="badge badge-ok">Concluído</span></span></div>
+      </div>
+    </div>
+
+    <!-- MODELO IA -->
+    <div class="section" id="sec-ia">
+      <div class="page-header">
+        <div class="page-title">Modelo de IA</div>
+        <div class="page-desc">Previsão de demanda e prevenção de validade logística</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">LSTM-Demanda-v2</div><span class="badge badge-ok">Ativo</span></div>
+        <div class="metrics" style="margin-bottom:0">
+          <div class="metric-card">
+            <div class="metric-label">Algoritmo</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono);margin:6px 0 4px">LSTM</div>
+            <div class="metric-sub">Long Short-Term Memory</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Acurácia média</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono);margin:6px 0 4px;color:var(--success)">91,0%</div>
+            <div class="metric-sub">Últimos 6 meses</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Versão</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono);margin:6px 0 4px">2.1.0</div>
+            <div class="metric-sub">Treinado em Out/2024</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Alertas gerados</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono);margin:6px 0 4px">2</div>
+            <div class="metric-sub">Neste ciclo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Previsão de demanda — Jun/2025</div></div>
+        <div class="row-detail"><span class="row-key">Medicamento</span><span class="row-val">Glifage XR 500mg (Metformina)</span></div>
+        <div class="row-detail"><span class="row-key">Quantidade prevista</span><span class="row-val mono">120.000 unidades</span></div>
+        <div class="row-detail"><span class="row-key">Período</span><span class="row-val mono">2025-06</span></div>
+        <div class="row-detail"><span class="row-key">Data de geração</span><span class="row-val mono">04/05/2026</span></div>
+        <div class="gauge-wrap" style="margin-top:12px">
+          <span class="gauge-label">Acurácia do modelo</span>
+          <div class="gauge-bar"><div class="gauge-fill" style="width:91%"></div></div>
+          <span class="gauge-value">91%</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Como o sistema funciona</div></div>
+        <div class="flow">
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Coleta dados</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>ModeloIA processa</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>Previsão gerada</div>
+          <div class="flow-step done"><span class="flow-icon">⬡</span>ControlePrazo verifica</div>
+          <div class="flow-step active-step"><span class="flow-icon">⬡</span>AlertaIA disparado</div>
+        </div>
+        <div style="margin-top:14px">
+          <span class="tag">Encapsulamento</span>
+          <span class="tag">Associação</span>
+          <span class="tag">precisaDeAlerta()</span>
+          <span class="tag">calcularStatus()</span>
+          <span class="tag">getAcuraciaFormatada()</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  function nav(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    btn.classList.add('active');
+    const titles = {
+      dashboard: 'Dashboard',
+      lotes: 'Lotes',
+      alertas: 'Alertas IA',
+      estoque: 'Estoque',
+      logistica: 'Logística',
+      regulatorio: 'Regulatório',
+      ia: 'Modelo de IA'
+    };
+    document.getElementById('topbar-title').textContent = titles[id] || id;
+  }
+
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
