@@ -44,6 +44,8 @@ A Libbs enfrenta o desafio de rastrear lotes de medicamentos ao longo de toda a 
 
 ```
 libbs-track/
+├── frontend/
+│   └── index.html
 ├── src/
 │   └── com/libbs/track/
 │       ├── app/
@@ -76,8 +78,6 @@ libbs-track/
 │               ├── InspecaoDeQualidade.java
 │               ├── RegistroAnvisa.java
 │               └── RelatorioRegulatorio.java
-├── frontend/
-│   └── index.html
 └── README.md
 ```
 
